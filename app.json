@@ -1,0 +1,83 @@
+{
+  "expo": {
+    "name": "Startline",
+    "slug": "startline",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "com.startlineau.app",
+    "userInterfaceStyle": "dark",
+    "ios": {
+      "bundleIdentifier": "com.startlineau.app",
+      "supportsTablet": true,
+      "config": {
+        "usesNonExemptEncryption": false
+      },
+      "associatedDomains": ["applinks:startlineau.com"]
+    },
+    "android": {
+      "package": "com.startlineau.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#141414",
+        "foregroundImage": "./assets/images/android-icon-foreground.png"
+      },
+      "predictiveBackGestureEnabled": true,
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "https",
+              "host": "startlineau.com",
+              "pathPrefix": "/events"
+            },
+            {
+              "scheme": "https",
+              "host": "startlineau.com",
+              "pathPrefix": "/activity"
+            },
+            {
+              "scheme": "https",
+              "host": "startlineau.com",
+              "pathPrefix": "/checkin"
+            }
+          ],
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
+      ]
+    },
+    "web": {
+      "output": "static",
+      "favicon": "./assets/images/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#141414",
+          "image": "./assets/images/splash-icon.png",
+          "imageWidth": 112
+        }
+      ],
+      [
+        "expo-secure-store",
+        {
+          "configureAndroidBackup": true
+        }
+      ],
+      [
+        "@stripe/stripe-react-native",
+        {
+          "merchantIdentifier": "merchant.com.startlineau.app",
+          "enableGooglePay": true
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    }
+  }
+}
