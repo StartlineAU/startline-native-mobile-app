@@ -1,0 +1,42 @@
+appId: com.startlineau.app
+name: Athlete sign in and profile
+env:
+  SEED_EMAIL: sarah.mitchell@startline.test
+  SEED_PASSWORD: Password123!
+---
+- launchApp:
+    clearState: false
+- extendedWaitUntil:
+    visible: ".*Find your.*"
+    timeout: 90000
+- tapOn: "Profile, tab, 4 of 4"
+- runFlow:
+    when:
+      visible: ".*Welcome.*"
+    commands:
+      - tapOn: "you@example.com"
+      - inputText: ${SEED_EMAIL}
+      - tapOn: "Your password"
+      - inputText: ${SEED_PASSWORD}
+      - hideKeyboard
+      - tapOn:
+          id: "sign-in-submit"
+- runFlow:
+    when:
+      visible: ".*One last step.*"
+    commands:
+      - tapOn: "1995-08-24"
+      - inputText: "1990-01-01"
+      - hideKeyboard
+      - tapOn:
+          id: "onboarding-terms-checkbox"
+      - tapOn:
+          id: "onboarding-submit"
+      - extendedWaitUntil:
+          visible: ".*Find your.*"
+          timeout: 30000
+      - tapOn: "Profile, tab, 4 of 4"
+- extendedWaitUntil:
+    visible: ".*Athlete profile.*"
+    timeout: 60000
+- assertVisible: "Edit profile"

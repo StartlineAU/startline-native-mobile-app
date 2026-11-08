@@ -99,6 +99,7 @@ export default function EditProfileScreen() {
       <ScrollView
         contentContainerStyle={styles.content}
         keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
         showsVerticalScrollIndicator={false}>
         <View style={styles.section}>
           <AppText variant="eyebrow">Public profile</AppText>

@@ -7,6 +7,25 @@ const INDEX_KEY = 'startline.amplify.index';
 const CHUNK_SIZE = 1700;
 const WEB_PREFIX = 'startline.amplify.';
 
+// An unsigned iOS Simulator build has no Keychain application identifier, so
+// SecureStore refuses every operation. Keep a development-only, in-memory
+// fallback so auth can be exercised without weakening or persisting tokens in
+// real builds. Production still fails closed.
+const developmentMemory = new Map<string, string>();
+let warnedAboutDevelopmentFallback = false;
+
+function allowDevelopmentFallback(error: unknown): boolean {
+  if (!__DEV__) throw error;
+  if (!warnedAboutDevelopmentFallback) {
+    warnedAboutDevelopmentFallback = true;
+    console.warn(
+      'SecureStore is unavailable in this development build. Cognito tokens will last only for this app session.',
+      error,
+    );
+  }
+  return true;
+}
+
 function webStorage(): Storage | null {
   if (Platform.OS !== 'web') return null;
   try {
@@ -40,19 +59,24 @@ export class StartlineSecureStorage implements KeyValueStorageInterface {
     const web = webStorage();
     if (web) return web.getItem(`${WEB_PREFIX}${key}`);
 
-    const hashed = await storageKey(key);
-    const countRaw = await SecureStore.getItemAsync(`${hashed}.count`);
-    if (!countRaw) return null;
-    const count = Number(countRaw);
-    if (!Number.isInteger(count) || count < 0) return null;
+    try {
+      const hashed = await storageKey(key);
+      const countRaw = await SecureStore.getItemAsync(`${hashed}.count`);
+      if (!countRaw) return developmentMemory.get(key) ?? null;
+      const count = Number(countRaw);
+      if (!Number.isInteger(count) || count < 0) return null;
 
-    const chunks: string[] = [];
-    for (let i = 0; i < count; i += 1) {
-      const chunk = await SecureStore.getItemAsync(`${hashed}.${i}`);
-      if (chunk == null) return null;
-      chunks.push(chunk);
+      const chunks: string[] = [];
+      for (let i = 0; i < count; i += 1) {
+        const chunk = await SecureStore.getItemAsync(`${hashed}.${i}`);
+        if (chunk == null) return null;
+        chunks.push(chunk);
+      }
+      return chunks.join('');
+    } catch (error) {
+      allowDevelopmentFallback(error);
+      return developmentMemory.get(key) ?? null;
     }
-    return chunks.join('');
   }
 
   async setItem(key: string, value: string): Promise<void> {
@@ -62,21 +86,26 @@ export class StartlineSecureStorage implements KeyValueStorageInterface {
       return;
     }
 
-    const hashed = await storageKey(key);
-    const previousCountRaw = await SecureStore.getItemAsync(`${hashed}.count`);
-    const previousCount = Number(previousCountRaw ?? 0);
-    const chunks = value.match(new RegExp(`[\\s\\S]{1,${CHUNK_SIZE}}`, 'g')) ?? [''];
+    try {
+      const hashed = await storageKey(key);
+      const previousCountRaw = await SecureStore.getItemAsync(`${hashed}.count`);
+      const previousCount = Number(previousCountRaw ?? 0);
+      const chunks = value.match(new RegExp(`[\\s\\S]{1,${CHUNK_SIZE}}`, 'g')) ?? [''];
 
-    for (let i = 0; i < chunks.length; i += 1) {
-      await SecureStore.setItemAsync(`${hashed}.${i}`, chunks[i]);
-    }
-    for (let i = chunks.length; i < previousCount; i += 1) {
-      await SecureStore.deleteItemAsync(`${hashed}.${i}`);
-    }
-    await SecureStore.setItemAsync(`${hashed}.count`, String(chunks.length));
+      for (let i = 0; i < chunks.length; i += 1) {
+        await SecureStore.setItemAsync(`${hashed}.${i}`, chunks[i]);
+      }
+      for (let i = chunks.length; i < previousCount; i += 1) {
+        await SecureStore.deleteItemAsync(`${hashed}.${i}`);
+      }
+      await SecureStore.setItemAsync(`${hashed}.count`, String(chunks.length));
 
-    const index = await readIndex();
-    if (!index.includes(hashed)) await writeIndex([...index, hashed]);
+      const index = await readIndex();
+      if (!index.includes(hashed)) await writeIndex([...index, hashed]);
+    } catch (error) {
+      allowDevelopmentFallback(error);
+      developmentMemory.set(key, value);
+    }
   }
 
   async removeItem(key: string): Promise<void> {
@@ -86,15 +115,21 @@ export class StartlineSecureStorage implements KeyValueStorageInterface {
       return;
     }
 
-    const hashed = await storageKey(key);
-    const countRaw = await SecureStore.getItemAsync(`${hashed}.count`);
-    const count = Number(countRaw ?? 0);
-    for (let i = 0; i < count; i += 1) {
-      await SecureStore.deleteItemAsync(`${hashed}.${i}`);
+    try {
+      const hashed = await storageKey(key);
+      const countRaw = await SecureStore.getItemAsync(`${hashed}.count`);
+      const count = Number(countRaw ?? 0);
+      for (let i = 0; i < count; i += 1) {
+        await SecureStore.deleteItemAsync(`${hashed}.${i}`);
+      }
+      await SecureStore.deleteItemAsync(`${hashed}.count`);
+      const index = await readIndex();
+      await writeIndex(index.filter((item) => item !== hashed));
+    } catch (error) {
+      allowDevelopmentFallback(error);
+    } finally {
+      developmentMemory.delete(key);
     }
-    await SecureStore.deleteItemAsync(`${hashed}.count`);
-    const index = await readIndex();
-    await writeIndex(index.filter((item) => item !== hashed));
   }
 
   async clear(): Promise<void> {
@@ -109,16 +144,21 @@ export class StartlineSecureStorage implements KeyValueStorageInterface {
       return;
     }
 
-    const index = await readIndex();
-    for (const hashed of index) {
-      const countRaw = await SecureStore.getItemAsync(`${hashed}.count`);
-      const count = Number(countRaw ?? 0);
-      for (let i = 0; i < count; i += 1) {
-        await SecureStore.deleteItemAsync(`${hashed}.${i}`);
+    developmentMemory.clear();
+    try {
+      const index = await readIndex();
+      for (const hashed of index) {
+        const countRaw = await SecureStore.getItemAsync(`${hashed}.count`);
+        const count = Number(countRaw ?? 0);
+        for (let i = 0; i < count; i += 1) {
+          await SecureStore.deleteItemAsync(`${hashed}.${i}`);
+        }
+        await SecureStore.deleteItemAsync(`${hashed}.count`);
       }
-      await SecureStore.deleteItemAsync(`${hashed}.count`);
+      await SecureStore.deleteItemAsync(INDEX_KEY);
+    } catch (error) {
+      allowDevelopmentFallback(error);
     }
-    await SecureStore.deleteItemAsync(INDEX_KEY);
   }
 }
 

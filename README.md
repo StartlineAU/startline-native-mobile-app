@@ -40,6 +40,26 @@ pnpm test
 npx expo-doctor
 ```
 
+## Simulator smoke tests
+
+The Maestro flows in `maestro/` cover event browsing, event detail, entry into
+registration, sign-in and the athlete profile. They require the local API, Metro,
+a seeded development database and an installed development build.
+
+```bash
+export PATH="$PATH:$HOME/.maestro/bin"
+maestro --device <simulator-udid> test maestro/athlete-browse.yaml
+maestro --device <simulator-udid> test maestro/athlete-auth.yaml
+```
+
+The auth flow defaults to the shared seed athlete
+`sarah.mitchell@startline.test` / `Password123!`; override `SEED_EMAIL` and
+`SEED_PASSWORD` with `-e` for another development account.
+
+Unsigned Simulator builds cannot access the Keychain. In development only,
+SecureStore falls back to in-memory token storage so sign-in can be tested; the
+fallback is never used in a production build.
+
 ## Backend integration
 
 The app calls the existing Next.js APIs. Signed-in requests send the Cognito

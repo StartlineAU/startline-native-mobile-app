@@ -54,6 +54,10 @@ npx expo install --fix      # fix incompatible package versions
 
 Run lint and typecheck before declaring any task done.
 
+Maestro smoke flows live in `maestro/`. They need a local API, Metro, seeded
+database and an installed development build. Keep selectors stable with
+`testID` on controls that do not have unique accessible text.
+
 ## Navigation & Routing
 
 - Use **Expo Router** for all navigation. Routes live in `src/app/` — every file there is a screen, `_layout.tsx` files define navigators. Keep non-route code (components, hooks, utils) outside `src/app/`.

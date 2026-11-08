@@ -13,7 +13,9 @@
       "config": {
         "usesNonExemptEncryption": false
       },
-      "associatedDomains": ["applinks:startlineau.com"]
+      "associatedDomains": [
+        "applinks:startlineau.com"
+      ]
     },
     "android": {
       "package": "com.startlineau.app",
@@ -43,7 +45,10 @@
               "pathPrefix": "/checkin"
             }
           ],
-          "category": ["BROWSABLE", "DEFAULT"]
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
         }
       ]
     },
@@ -72,6 +77,14 @@
         {
           "merchantIdentifier": "merchant.com.startlineau.app",
           "enableGooglePay": true
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "useFrameworks": "dynamic"
+          }
         }
       ]
     ],

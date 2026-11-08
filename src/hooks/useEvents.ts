@@ -5,6 +5,8 @@ import type {
   EventDetailResponse,
   EventListResponse,
   FollowingOrganiser,
+  PublicEvent,
+  PublicWave,
   UserNotification,
   UserRegistration,
 } from '@/types/api';
@@ -46,15 +48,88 @@ export function useInfiniteEventList(params: Record<string, string | number | un
   });
 }
 
+type RawDetailEvent = Partial<PublicEvent> & {
+  date?: string;
+  time?: string;
+  location?: string;
+  image?: string;
+  ticketDrops?: PublicWave[];
+};
+
+/**
+ * The detail endpoint returns the web app's UserEvent shape (ticketDrops,
+ * date, time, location), while the listing returns PublicEvent (waves,
+ * eventDate, venue). Normalise it once here so every native screen has one
+ * event shape.
+ */
+function normaliseDetailEvent(raw: RawDetailEvent): PublicEvent {
+  return {
+    ...raw,
+    eventDate: raw.eventDate ?? raw.date ?? '',
+    startTime: raw.startTime ?? raw.time ?? '',
+    endTime: raw.endTime ?? raw.time ?? '',
+    venue: raw.venue ?? raw.location ?? '',
+    waves: Array.isArray(raw.waves)
+      ? raw.waves
+      : Array.isArray(raw.ticketDrops)
+        ? raw.ticketDrops
+        : [],
+    coverImageUrl: raw.coverImageUrl ?? raw.image ?? null,
+    photos: Array.isArray(raw.photos) ? raw.photos : [],
+    categories: Array.isArray(raw.categories) ? raw.categories : [],
+    informationPdfs: Array.isArray(raw.informationPdfs) ? raw.informationPdfs : [],
+    registrationCount: raw.registrationCount ?? 0,
+    fromPrice: raw.fromPrice ?? null,
+    cap: raw.cap ?? null,
+    minAge: raw.minAge ?? null,
+    organiser: raw.organiser ?? {
+      id: raw.organiserId ?? '',
+      orgName: null,
+      logoUrl: null,
+    },
+    organiserId: raw.organiserId ?? raw.organiser?.id ?? '',
+    registrationType: raw.registrationType ?? 'startline',
+    registrationUrl: raw.registrationUrl ?? null,
+    feeStructure: raw.feeStructure ?? 'athlete',
+    refundPolicy: raw.refundPolicy ?? null,
+    refundTiers: raw.refundTiers ?? null,
+    description: raw.description ?? null,
+    status: raw.status ?? 'APPROVED',
+    title: raw.title ?? 'Event',
+    discipline: raw.discipline ?? '',
+    city: raw.city ?? '',
+    state: raw.state ?? '',
+    format: raw.format ?? '',
+    level: raw.level ?? '',
+    slug: raw.slug ?? null,
+    latitude: raw.latitude ?? null,
+    longitude: raw.longitude ?? null,
+    address: raw.address ?? null,
+    endDate: raw.endDate ?? null,
+    timeZone: raw.timeZone ?? 'Australia/Sydney',
+    startsAtUtc: raw.startsAtUtc ?? null,
+    endsAtUtc: raw.endsAtUtc ?? null,
+    extras: raw.extras ?? null,
+    id: raw.id ?? '',
+  };
+}
+
 export function useEventDetail(id: string | undefined) {
   return useQuery({
     queryKey: ['event', id],
     enabled: Boolean(id),
-    queryFn: ({ signal }) =>
-      apiRequest<EventDetailResponse>(`/api/events/${encodeURIComponent(id!)}/detail`, {
+    queryFn: async ({ signal }) => {
+      const result = await apiRequest<
+        Omit<EventDetailResponse, 'event'> & { event: RawDetailEvent }
+      >(`/api/events/${encodeURIComponent(id!)}/detail`, {
         signal,
         auth: 'optional',
-      }),
+      });
+      return {
+        ...result,
+        event: normaliseDetailEvent(result.event),
+      } satisfies EventDetailResponse;
+    },
   });
 }
 

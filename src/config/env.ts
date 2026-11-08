@@ -40,5 +40,10 @@ export const config = {
 } as const;
 
 export const cognitoConfigured = Boolean(
-  config.cognitoUserPoolId && config.cognitoClientId && config.cognitoDomain,
+  config.cognitoUserPoolId && config.cognitoClientId,
+);
+
+/** Hosted UI OAuth also needs the Cognito domain; password auth does not. */
+export const socialSignInConfigured = Boolean(
+  cognitoConfigured && config.cognitoDomain,
 );

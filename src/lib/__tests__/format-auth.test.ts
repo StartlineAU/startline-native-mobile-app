@@ -48,4 +48,9 @@ describe('formatting', () => {
   it('formats an event date and 24-hour time for Australian readers', () => {
     expect(formatDateTime('2026-11-14', '07:00')).toContain('7:00 AM');
   });
+
+  it('tolerates missing tier times', () => {
+    expect(formatDateTime('2026-11-14', null)).not.toContain('·');
+    expect(formatDateTime('2026-11-14', '')).not.toContain('·');
+  });
 });

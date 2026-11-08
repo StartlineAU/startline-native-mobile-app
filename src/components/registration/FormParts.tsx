@@ -54,7 +54,7 @@ export function TicketSelector({
 }) {
   return (
     <View style={styles.ticketList}>
-      {waves.map((wave) => {
+      {waves.map((wave, waveIndex) => {
         const quantity = quantities[wave.label] ?? 0;
         const availabilityRow = availability?.[wave.label];
         const remaining =
@@ -73,6 +73,7 @@ export function TicketSelector({
             </View>
             <View style={styles.stepper}>
               <Pressable
+                testID={`ticket-remove-${waveIndex}`}
                 accessibilityRole="button"
                 accessibilityLabel={`Remove ${wave.label}`}
                 disabled={quantity === 0}
@@ -84,6 +85,7 @@ export function TicketSelector({
                 {quantity}
               </AppText>
               <Pressable
+                testID={`ticket-add-${waveIndex}`}
                 accessibilityRole="button"
                 accessibilityLabel={`Add ${wave.label}`}
                 disabled={soldOut}
@@ -128,6 +130,7 @@ export function ParticipantForm({
         <View style={styles.flex}>
           <Field label="First name" error={errors.firstName}>
             <Input
+              testID={`participant-${index}-firstName`}
               value={participant.firstName}
               onChangeText={(value) => onChange('firstName', value)}
               placeholder="First name"
@@ -139,6 +142,7 @@ export function ParticipantForm({
         <View style={styles.flex}>
           <Field label="Last name" error={errors.lastName}>
             <Input
+              testID={`participant-${index}-lastName`}
               value={participant.lastName}
               onChangeText={(value) => onChange('lastName', value)}
               placeholder="Last name"
@@ -151,6 +155,7 @@ export function ParticipantForm({
 
       <Field label="Email" error={errors.email}>
         <Input
+          testID={`participant-${index}-email`}
           value={participant.email}
           onChangeText={(value) => onChange('email', value)}
           placeholder="you@example.com"
@@ -165,6 +170,7 @@ export function ParticipantForm({
         <View style={styles.flex}>
           <Field label="Date of birth" error={errors.dateOfBirth} hint="YYYY-MM-DD">
             <Input
+              testID={`participant-${index}-dateOfBirth`}
               value={participant.dateOfBirth}
               onChangeText={(value) => onChange('dateOfBirth', value)}
               placeholder="1995-08-24"
@@ -201,6 +207,7 @@ export function ParticipantForm({
         <>
           <Field label="Emergency contact name" error={errors.emergencyContactName}>
             <Input
+              testID={`participant-${index}-emergencyContactName`}
               value={participant.emergencyContactName}
               onChangeText={(value) => onChange('emergencyContactName', value)}
               placeholder="Someone other than you"
@@ -208,6 +215,7 @@ export function ParticipantForm({
           </Field>
           <Field label="Emergency contact phone" error={errors.emergencyContactPhone}>
             <Input
+              testID={`participant-${index}-emergencyContactPhone`}
               value={participant.emergencyContactPhone}
               onChangeText={(value) => onChange('emergencyContactPhone', value)}
               placeholder="Their mobile number"

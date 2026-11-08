@@ -74,6 +74,7 @@ export default function SupportScreen() {
       <ScrollView
         contentContainerStyle={styles.content}
         keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
         showsVerticalScrollIndicator={false}>
         {ticketId ? (
           <View style={styles.successCard}>

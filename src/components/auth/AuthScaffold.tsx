@@ -14,7 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppText } from '@/components/ui/AppText';
 import { Button } from '@/components/ui/Button';
 import { Field, Input } from '@/components/ui/Input';
-import { config } from '@/config/env';
+import { config, socialSignInConfigured } from '@/config/env';
 import { colors, spacing } from '@/theme/tokens';
 
 export function AuthScaffold({
@@ -40,6 +40,7 @@ export function AuthScaffold({
         <ScrollView
           contentContainerStyle={styles.content}
           keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
           showsVerticalScrollIndicator={false}>
           <View style={styles.topBar}>
             <Pressable
@@ -91,7 +92,7 @@ export function AuthScaffold({
 }
 
 export function SocialSignInButtons({ onProvider }: { onProvider: (provider: 'google' | 'apple') => void }) {
-  if (config.socialProviders.length === 0) return null;
+  if (!socialSignInConfigured || config.socialProviders.length === 0) return null;
   return (
     <View style={styles.social}>
       <View style={styles.orRow}>

@@ -34,9 +34,10 @@ export function formatLongDate(iso: string): string {
   });
 }
 
-export function formatDateTime(iso: string, time?: string): string {
+export function formatDateTime(iso: string, time?: string | null): string {
   const date = formatLongDate(iso);
-  return time ? `${date} · ${formatTime(time)}` : date;
+  const formattedTime = formatTime(time);
+  return formattedTime ? `${date} · ${formattedTime}` : date;
 }
 
 export function formatDateRange(start: string, end: string): string {
@@ -44,7 +45,8 @@ export function formatDateRange(start: string, end: string): string {
   return `${formatEventDate(start)}–${formatEventDate(end)}`;
 }
 
-export function formatTime(time: string): string {
+export function formatTime(time: string | null | undefined): string {
+  if (!time) return '';
   const [hourRaw, minuteRaw] = time.split(':');
   const hour = Number(hourRaw);
   const minute = Number(minuteRaw);

@@ -16,7 +16,7 @@ import { cognitoUserPoolsTokenProvider } from 'aws-amplify/auth/cognito';
 import * as AuthSession from 'expo-auth-session';
 import * as WebBrowser from 'expo-web-browser';
 
-import { config, cognitoConfigured } from '@/config/env';
+import { config, cognitoConfigured, socialSignInConfigured } from '@/config/env';
 import { apiRequest } from '@/lib/api';
 import { setApiAuthHeaderProvider } from '@/lib/auth/api-auth';
 import { secureStorage } from '@/lib/auth/secure-storage';
@@ -232,7 +232,7 @@ export async function confirmPasswordReset(
 
 export async function socialSignIn(provider: SocialProvider): Promise<SignInResult> {
   configureAuth();
-  if (!cognitoConfigured) throw new Error('Social sign-in is not configured.');
+  if (!socialSignInConfigured) throw new Error('Social sign-in is not configured.');
 
   const authorizationEndpoint = `https://${config.cognitoDomain}/oauth2/authorize`;
   const tokenEndpoint = `https://${config.cognitoDomain}/oauth2/token`;

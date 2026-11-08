@@ -1,0 +1,26 @@
+appId: com.startlineau.app
+name: Athlete browse and checkout entry
+---
+- launchApp:
+    clearState: false
+- extendedWaitUntil:
+    visible: ".*Find your.*"
+    timeout: 90000
+- assertVisible: "Most popular events"
+- assertVisible: "Events, tab, 2 of 4"
+- scrollUntilVisible:
+    element:
+      text: ".*Sydney Harbour 10K.*"
+    direction: DOWN
+    timeout: 30000
+- tapOn: ".*Sydney Harbour 10K.*"
+- assertVisible: "Event overview"
+- assertVisible: "REGISTER NOW"
+- tapOn: "REGISTER NOW"
+- assertVisible: ".*Secure your.*"
+- tapOn:
+    id: "ticket-add-0"
+- tapOn:
+    id: "registration-next"
+- assertVisible: "Details"
+- assertVisible: "First name"

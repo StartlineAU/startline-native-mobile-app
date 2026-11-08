@@ -19,6 +19,7 @@ import {
   StepRail,
   TicketSelector,
 } from '@/components/registration/FormParts';
+import { AgreementCheckbox } from '@/components/ui/AgreementCheckbox';
 import { AppText, EmptyState, LoadingView } from '@/components/ui/AppText';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -257,6 +258,7 @@ function FreeRsvpFlow({ event, waves }: { event: PublicEvent; waves: PublicWave[
 
       <View style={[styles.stickyBar, { paddingBottom: Math.max(insets.bottom, spacing.md) }]}>
         <Button
+          testID="rsvp-submit"
           label="Confirm RSVP"
           onPress={() => void submit()}
           loading={submitting}
@@ -537,6 +539,7 @@ function StandardRegistrationFlow({
           { paddingBottom: 130 + insets.bottom },
         ]}
         keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
         showsVerticalScrollIndicator={false}>
         <View style={styles.heading}>
           <AppText variant="eyebrow">Registration</AppText>
@@ -741,6 +744,7 @@ function StandardRegistrationFlow({
           </Pressable>
         ) : null}
         <Button
+          testID="registration-next"
           label={
             step === 0
               ? 'Continue'
@@ -781,14 +785,10 @@ function TermsBlock({
   onChange: (value: boolean) => void;
 }) {
   return (
-    <Pressable
-      accessibilityRole="checkbox"
-      accessibilityState={{ checked: accepted }}
-      onPress={() => onChange(!accepted)}
-      style={styles.termsRow}>
-      <View style={[styles.checkbox, accepted ? styles.checkboxActive : null]}>
-        {accepted ? <Check size={13} color={colors.primaryInk} strokeWidth={3} /> : null}
-      </View>
+    <AgreementCheckbox
+      testID="registration-terms-checkbox"
+      checked={accepted}
+      onChange={onChange}>
       <AppText variant="bodySmall" style={styles.termsText}>
         I agree to the Startline{' '}
         <AppText
@@ -800,7 +800,7 @@ function TermsBlock({
         , this event&apos;s entry terms and waiver, and confirm my details are correct. My details,
         including medical and emergency information, are shared with the organiser.
       </AppText>
-    </Pressable>
+    </AgreementCheckbox>
   );
 }
 
@@ -915,24 +915,7 @@ const styles = StyleSheet.create({
     borderTopColor: colors.border,
   },
   paymentCard: { flexDirection: 'row', gap: spacing.md, alignItems: 'flex-start' },
-  termsRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: spacing.md,
-    paddingVertical: spacing.sm,
-  },
-  checkbox: {
-    width: 20,
-    height: 20,
-    borderRadius: 5,
-    borderWidth: 2,
-    borderColor: colors.raised,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 1,
-  },
-  checkboxActive: { borderColor: colors.primary, backgroundColor: colors.primary },
-  termsText: { flex: 1, lineHeight: 19 },
+  termsText: { lineHeight: 19, paddingTop: 1 },
   stickyBar: {
     position: 'absolute',
     left: 0,

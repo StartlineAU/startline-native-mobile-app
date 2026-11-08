@@ -62,6 +62,15 @@ export default function SignInScreen() {
       setSetupUri(result.setupUri ?? null);
       setChallengeValue('');
     } catch (err) {
+      if (__DEV__) {
+        const detail = err as { name?: string; message?: string; underlyingError?: unknown; cause?: unknown };
+        console.warn('Sign-in failed', {
+          name: detail?.name,
+          message: detail?.message,
+          underlyingError: detail?.underlyingError,
+          cause: detail?.cause,
+        });
+      }
       setError(authErrorMessage(err));
     } finally {
       setLoading(false);
@@ -211,6 +220,7 @@ export default function SignInScreen() {
       {error ? <AppText style={styles.error}>{error}</AppText> : null}
 
       <Button
+        testID="sign-in-submit"
         label="Sign in"
         onPress={() => void submit()}
         loading={loading}

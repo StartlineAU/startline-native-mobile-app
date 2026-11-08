@@ -118,29 +118,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'transparent',
   },
-  sm: { minHeight: 36, paddingHorizontal: spacing.md },
-  md: { minHeight: 46, paddingHorizontal: spacing.lg },
-  lg: { minHeight: 54, paddingHorizontal: spacing.xl },
-  primary: {
-    backgroundColor: colors.primary,
-    borderColor: colors.primary,
-  },
-  outline: {
-    backgroundColor: 'transparent',
-    borderColor: colors.raised,
-  },
-  ghost: {
-    backgroundColor: 'transparent',
-    borderColor: 'transparent',
-  },
-  lime: {
-    backgroundColor: colors.primary,
-    borderColor: colors.primary,
-  },
-  danger: {
-    backgroundColor: colors.dangerSoft,
-    borderColor: 'rgba(248,113,113,0.32)',
-  },
   fullWidth: { alignSelf: 'stretch' },
   label: {
     textAlign: 'center',
@@ -175,16 +152,22 @@ const styles = StyleSheet.create({
   },
 });
 
-const sizeStyles = StyleSheet.create<Record<ButtonSize, ViewStyle>>({
-  sm: styles.sm,
-  md: styles.md,
-  lg: styles.lg,
-});
+// Keep these as plain objects. Passing styles returned by StyleSheet.create
+// back into another StyleSheet.create registry does not preserve the native
+// styles on all platforms, which made the primary button's face transparent.
+const sizeStyles: Record<ButtonSize, ViewStyle> = {
+  sm: { minHeight: 36, paddingHorizontal: spacing.md },
+  md: { minHeight: 46, paddingHorizontal: spacing.lg },
+  lg: { minHeight: 54, paddingHorizontal: spacing.xl },
+};
 
-const variantStyles = StyleSheet.create<Record<ButtonVariant, ViewStyle>>({
-  primary: styles.primary,
-  outline: styles.outline,
-  ghost: styles.ghost,
-  lime: styles.lime,
-  danger: styles.danger,
-});
+const variantStyles: Record<ButtonVariant, ViewStyle> = {
+  primary: { backgroundColor: colors.primary, borderColor: colors.primary },
+  outline: { backgroundColor: 'transparent', borderColor: colors.raised },
+  ghost: { backgroundColor: 'transparent', borderColor: 'transparent' },
+  lime: { backgroundColor: colors.primary, borderColor: colors.primary },
+  danger: {
+    backgroundColor: colors.dangerSoft,
+    borderColor: 'rgba(248,113,113,0.32)',
+  },
+};

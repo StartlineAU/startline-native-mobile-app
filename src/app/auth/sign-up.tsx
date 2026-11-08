@@ -1,10 +1,10 @@
 import { router, useLocalSearchParams, type Href } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
-import { Check } from 'lucide-react-native';
 import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { AuthScaffold, SocialSignInButtons } from '@/components/auth/AuthScaffold';
+import { AgreementCheckbox } from '@/components/ui/AgreementCheckbox';
 import { AppText } from '@/components/ui/AppText';
 import { Button } from '@/components/ui/Button';
 import { Field, Input } from '@/components/ui/Input';
@@ -170,14 +170,10 @@ export default function SignUpScreen() {
           />
         </Field>
 
-        <Pressable
-          accessibilityRole="checkbox"
-          accessibilityState={{ checked: accepted }}
-          onPress={() => setAccepted((value) => !value)}
-          style={styles.termsRow}>
-          <View style={[styles.checkbox, accepted ? styles.checkboxActive : null]}>
-            {accepted ? <Check size={13} color={colors.primaryInk} strokeWidth={3} /> : null}
-          </View>
+        <AgreementCheckbox
+          testID="sign-up-terms-checkbox"
+          checked={accepted}
+          onChange={setAccepted}>
           <AppText variant="bodySmall" style={styles.termsText}>
             I agree to the Startline{' '}
             <AppText
@@ -195,7 +191,7 @@ export default function SignUpScreen() {
             </AppText>
             .
           </AppText>
-        </Pressable>
+        </AgreementCheckbox>
 
         {error ? <AppText style={styles.error}>{error}</AppText> : null}
 
@@ -234,29 +230,9 @@ const styles = StyleSheet.create({
     gap: spacing.md,
   },
   flex: { flex: 1 },
-  termsRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: spacing.md,
-    paddingVertical: spacing.sm,
-  },
-  checkbox: {
-    width: 20,
-    height: 20,
-    borderRadius: 5,
-    borderWidth: 2,
-    borderColor: colors.raised,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 1,
-  },
-  checkboxActive: {
-    borderColor: colors.primary,
-    backgroundColor: colors.primary,
-  },
   termsText: {
-    flex: 1,
     lineHeight: 19,
+    paddingTop: 1,
   },
   link: {
     color: colors.primary,
